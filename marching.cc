@@ -26,6 +26,8 @@ static std::vector<std::array<size_t, 3>> configurations[256] = {
 #include "table.inc"
 };
 
+namespace MarchingCubes {
+
 TriMesh isosurface(std::function<double(const Point3D &)> f,
                    const Point3D &center, double size,
                    size_t min_depth, size_t max_depth) {
@@ -104,3 +106,6 @@ TriMesh isosurface(std::function<double(const Point3D &)> f,
   mesh.setPoints(vertices);
   return mesh;
 }
+
+}
+
