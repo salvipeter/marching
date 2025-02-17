@@ -4,6 +4,7 @@
 #include "marching.hh"
 
 using namespace Geometry;
+using MarchingCubes::isosurface;
 
 double chebyshev(size_t n, double x) {
   if (n == 0)
