@@ -1,4 +1,5 @@
 #include <cmath>
+#include <limits>
 #include <random>
 
 #include "marching.hh"
@@ -12,6 +13,39 @@ double chebyshev(size_t n, double x) {
   if (n == 1)
     return x;
   return 2 * x * chebyshev(n - 1, x) - chebyshev(n - 2, x);
+}
+
+enum Platonic { OCTAHEDRON = 0, DODECAHEDRON = 1, ICOSAHEDRON = 2 };
+
+auto platonic(Platonic type) {
+  double f = (1 + std::sqrt(5)) / 2, m = -f, f1 = 1 / f, m1 = -f1;
+  static const VectorVector normals[] = {
+    { {1,1,1}, {1,1,-1}, {1,-1,1}, {1,-1,-1},
+      {-1,1,1}, {-1,1,-1}, {-1,-1,1}, {-1,-1,-1} },
+    { {0,1,f}, {0,1,m}, {0,-1,f}, {0,-1,m},
+      {1,f,0}, {1,m,0}, {-1,f,0}, {-1,m,0},
+      {f,0,1}, {f,0,-1}, {m,0,1}, {m,0,-1} },
+    { {1,1,1}, {1,1,-1}, {1,-1,1}, {1,-1,-1},
+      {-1,1,1}, {-1,1,-1}, {-1,-1,1}, {-1,-1,-1},
+      {0,f,f1}, {0,f,m1}, {0,m,f1}, {0,m,m1},
+      {f,f1,0}, {f,m1,0}, {m,f1,0}, {m,m1,0},
+      {f1,0,f}, {f1,0,m}, {m1,0,f}, {m1,0,m} }
+  };
+  double radii[] = {
+    1 / std::sqrt(3),
+    f / std::sqrt(9 - 3 * f),
+    (f + 1) / std::sqrt(3 * (f + 2))
+  };
+  auto ns = normals[type];
+  for (auto &n : ns)
+    n.normalize();
+  auto r = radii[type];
+  return [=](const Point3D &p) {
+    auto x = -std::numeric_limits<double>::max();
+    for (const auto &n : ns)
+      x = std::max(x, (p - (n * r)) * n);
+    return x;
+  };
 }
 
 int main() {
@@ -79,12 +113,21 @@ int main() {
     };
   };
 
+  // Hyperbolized Platonic solids
+  auto f6 = [](Platonic type, double hyperbolicness) {
+    auto f = platonic(type);
+    return [=](const Point3D &p) {
+      return f(p * std::pow(p.norm(), -hyperbolicness));
+    };
+  };
+
   Point3D center(0, 0, 0);
   // auto mesh = isosurface(f0, center, 1.1, 4, 8);
-  auto mesh = isosurface(f1, center, 1, 4, 8);
+  // auto mesh = isosurface(f1, center, 1, 4, 8);
   // auto mesh = isosurface(f2(6), center, 3, 4, 8);
   // auto mesh = isosurface(f3, center, 4.1, 4, 8);
   // auto mesh = isosurface(f4, center, 4, 7, 8);
   // auto mesh = isosurface(f5(40, 0.05), center, 1.1, 7, 7);
+  auto mesh = isosurface(f6(Platonic::ICOSAHEDRON, 0.6), center, 1.1, 4, 8);
   mesh.writeOBJ("/tmp/mc.obj");
 }
