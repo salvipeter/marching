@@ -121,6 +121,15 @@ int main() {
     };
   };
 
+  // Chair surface
+  auto f7 = [](double a, double b) {
+    return [=](const Point3D &p) {
+      auto x = p[0], y = p[1], z = p[2];
+      return std::pow(p.normSqr() - a, 2) -
+        b * (std::pow(z - 1, 2) - 2 * x * x) * (std::pow(z + 1, 2) - 2 * y * y);
+    };
+  };
+
   Point3D center(0, 0, 0);
   // auto mesh = isosurface(f0, center, 1.1, 4, 8);
   // auto mesh = isosurface(f1, center, 1, 4, 8);
@@ -128,6 +137,7 @@ int main() {
   // auto mesh = isosurface(f3, center, 4.1, 4, 8);
   // auto mesh = isosurface(f4, center, 4, 7, 8);
   // auto mesh = isosurface(f5(40, 0.05), center, 1.1, 7, 7);
-  auto mesh = isosurface(f6(Platonic::ICOSAHEDRON, 0.6), center, 1.1, 4, 8);
+  // auto mesh = isosurface(f6(Platonic::ICOSAHEDRON, 0.6), center, 1.1, 4, 8);
+  auto mesh = isosurface(f7(0.8, 0.5), center, 1.1, 4, 7);
   mesh.writeOBJ("/tmp/mc.obj");
 }
