@@ -121,7 +121,8 @@ int main() {
     };
   };
 
-  // Chair surface
+  // Chair surface (`a` controls how the center sinks in and form a hole; good values: 0.7-1.0
+  //                `b` controls the size of the hole; good values: 0.5-1.0)
   auto f7 = [](double a, double b) {
     return [=](const Point3D &p) {
       auto x = p[0], y = p[1], z = p[2];
@@ -138,6 +139,6 @@ int main() {
   // auto mesh = isosurface(f4, center, 4, 7, 8);
   // auto mesh = isosurface(f5(40, 0.05), center, 1.1, 7, 7);
   // auto mesh = isosurface(f6(Platonic::ICOSAHEDRON, 0.6), center, 1.1, 4, 8);
-  auto mesh = isosurface(f7(0.8, 0.5), center, 1.1, 4, 7);
+  auto mesh = isosurface(f7(0.8, 0.6), center, 1.1, 4, 7);
   mesh.writeOBJ("/tmp/mc.obj");
 }
